@@ -4,6 +4,7 @@ const Car = require("../models/car");
 
 const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler");
+const validateCarParameters = require("../middleware/validateCarParameters");
 
 
 
@@ -35,39 +36,8 @@ exports.car_detail = asyncHandler(async (req, res, next) => {
 });
 
 exports.car_create = [
-    // Validate and sanitize fields.
-    body("brandname")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("brandname must be specified."),
-    body("cartype")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("cartype name must be specified."),
-    body("price")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage(" price must be specified."),
-    body("productionarea")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("productionarea name must be specified."),
-
-    // Process request after validation and sanitization.
+    validateCarParameters,
     asyncHandler(async (req, res, next) => {
-
-        if (!req.user.is_admin) {
-            return res.status(403).json({ error: "Access denied. Only administrators can create cars." });
-        }
-
-        // Extract the validation errors from a request.
-        const errors = validationResult(req);
-
-        // Create car object with escaped and trimmed data
         const car = new Car({
             brandname: req.body.brandname,
             cartype: req.body.cartype,
@@ -115,30 +85,8 @@ exports.car_delete = asyncHandler(async (req, res, next) => {
 });
 
 exports.car_update = [
-    // Validate and sanitize fields.
-    body("brandname")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("brandname must be specified."),
-    body("cartype")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("cartype name must be specified."),
-    body("price")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("price must be specified."),
-    body("productionarea")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("productionarea name must be specified."),
-
+    validateCarParameters,
     asyncHandler(async (req, res, next) => {
-        // 检查用户是否为管理员
         if (!req.user.is_admin) {
             return res.status(403).json({ error: "Access denied. Only administrators can update cars." });
         }

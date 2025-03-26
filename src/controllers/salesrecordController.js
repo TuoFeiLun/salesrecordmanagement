@@ -5,6 +5,7 @@ const Car = require("../models/car");
 const Salesrecord = require("../models/salesrecord");
 const { body, validationResult } = require("express-validator");
 const asyncHandler = require("express-async-handler");
+const validateSalesRecordParameters = require("../middleware/validateSalesRecordParameters");
 
 
 
@@ -27,47 +28,7 @@ exports.salesrecord_detail = asyncHandler(async (req, res, next) => {
 });
 
 exports.salesrecord_create = [
-    body("car")
-        .trim()
-        .isLength({ min: 1 })
-        .custom(async (value) => {
-            if (!mongoose.Types.ObjectId.isValid(value)) {
-                throw new Error('Invalid car ID format');
-            }
-            const carExists = await Car.findById(value);
-            if (!carExists) {
-                throw new Error('Car not found');
-            }
-            return true;
-        }),
-    body("buyer")
-        .trim()
-        .isLength({ min: 1 })
-        .custom(async (value) => {
-            if (!mongoose.Types.ObjectId.isValid(value)) {
-                throw new Error('Invalid buyer ID format');
-            }
-            const buyerExists = await Customer.findById(value);
-            if (!buyerExists) {
-                throw new Error('Customer not found');
-            }
-            return true;
-        }),
-    body("salesman")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("Salesman name is required"),
-    body("purchasedate")
-        .optional()
-        .isISO8601()
-        .toDate()
-        .withMessage("Invalid date format"),
-    body("transactionprice")
-        .trim()
-        .isNumeric()
-        .withMessage("Transaction price must be a number"),
-
+    validateSalesRecordParameters,
     asyncHandler(async (req, res, next) => {
         // 检查用户是否为管理员
         if (!req.user.is_admin) {
@@ -95,47 +56,7 @@ exports.salesrecord_create = [
 ];
 
 exports.salesrecord_update = [
-    body("car")
-        .trim()
-        .isLength({ min: 1 })
-        .custom(async (value) => {
-            if (!mongoose.Types.ObjectId.isValid(value)) {
-                throw new Error('Invalid car ID format');
-            }
-            const carExists = await Car.findById(value);
-            if (!carExists) {
-                throw new Error('Car not found');
-            }
-            return true;
-        }),
-    body("buyer")
-        .trim()
-        .isLength({ min: 1 })
-        .custom(async (value) => {
-            if (!mongoose.Types.ObjectId.isValid(value)) {
-                throw new Error('Invalid buyer ID format');
-            }
-            const buyerExists = await Customer.findById(value);
-            if (!buyerExists) {
-                throw new Error('Customer not found');
-            }
-            return true;
-        }),
-    body("salesman")
-        .trim()
-        .isLength({ min: 1 })
-        .escape()
-        .withMessage("Salesman name is required"),
-    body("purchasedate")
-        .optional()
-        .isISO8601()
-        .toDate()
-        .withMessage("Invalid date format"),
-    body("transactionprice")
-        .trim()
-        .isNumeric()
-        .withMessage("Transaction price must be a number"),
-
+    validateSalesRecordParameters,
     asyncHandler(async (req, res, next) => {
         // 检查用户是否为管理员
         if (!req.user.is_admin) {
