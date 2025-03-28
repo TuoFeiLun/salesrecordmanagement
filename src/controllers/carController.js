@@ -38,6 +38,14 @@ exports.car_detail = asyncHandler(async (req, res, next) => {
 exports.car_create = [
     validateCarParameters,
     asyncHandler(async (req, res, next) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                errors: errors.array(),
+            });
+        }
+
         const car = new Car({
             brandname: req.body.brandname,
             cartype: req.body.cartype,
@@ -45,18 +53,8 @@ exports.car_create = [
             productionarea: req.body.productionarea,
         });
 
-        if (!errors.isEmpty()) {
-            //  
-            res.status(400).json({
-                car: car,
-                errors: errors.array(),
-            });
-            return;
-        } else {
-            await car.save();
-            res.status(200);
-            res.json(car);
-        }
+        await car.save();
+        res.status(201).json(car);
     }),
 ];
 

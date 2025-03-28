@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 var fs = require('fs');
 var morgan = require('morgan');
 var path = require('path');
+const { authLimiter, apiLimiter, createLimiter } = require('./src/middleware/rateLimiter');
 
 const indexRouter = require("./src/routes/index");
 
@@ -24,6 +25,15 @@ async function main() {
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Apply rate limiting
+app.use('/api/auth', authLimiter); // Stricter limits for authentication endpoints
+app.use('/api', apiLimiter); // General API rate limiting
+
+// Apply create operation rate limiting to specific routes
+app.use('/api/customers/create', createLimiter);
+app.use('/api/cars/create', createLimiter);
+app.use('/api/salesrecords/create', createLimiter);
 
 app.use((req, res, next) => {
     console.log(`Received request for route: ${req.originalUrl}`);
