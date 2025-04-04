@@ -22,7 +22,7 @@ const createRateLimiter = (config = {}) => {
 // Specific rate limiters for different endpoints
 const authLimiter = createRateLimiter({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 5, // 5 attempts per hour for auth endpoints
+    max: 10, // 10 attempts per hour for auth endpoints
     message: {
         error: 'Too many login attempts, please try again after an hour.'
     }

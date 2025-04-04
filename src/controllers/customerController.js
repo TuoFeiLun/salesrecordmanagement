@@ -19,16 +19,29 @@ exports.customer_list = asyncHandler(async (req, res, next) => {
 
     const allCustomer = await Customer
         .find(queryConditions)
-        .sort({ firstname: 1 })
-        .paginate({ ...req.paginate });
+        .populate({
+            path: 'cars',
+            select: 'brandname cartype price productionarea'
+        })
+        .populate({
+            path: 'createdBy',
+            select: 'username'
+        }).sort({ firstname: 1 })
+        .skip((req.paginate.page - 1) * req.paginate.limit)
+        .limit(req.paginate.limit)
+        .exec();
+    // .sort({ firstname: 1 })
+    // .paginate({ ...req.paginate });
 
+    const plainDocs = JSON.parse(JSON.stringify(allCustomer));
+    console.log("填充后的客户数据:", JSON.stringify(plainDocs[0], null, 2));
     res.status(200)
         .links(generatePaginationLinks(
             req.originalUrl,
             req.paginate.page,
             allCustomer.totalPages,
             req.paginate.limit
-        )).json(allCustomer.docs);
+        )).json(plainDocs);
     next();
 });
 
@@ -86,11 +99,11 @@ exports.customer_update = [
             return res.status(403).json({ error: "Access denied, you are not the creator of this customer or you are not an admin" });
         }
 
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                errors: errors.array(),
-            });
-        }
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).json({
+        //         errors: errors.array(),
+        //     });
+        // }
 
         const updatedCustomer = await Customer.findOneAndUpdate(
             { _id: req.params.id },

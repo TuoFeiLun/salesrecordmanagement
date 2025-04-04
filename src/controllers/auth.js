@@ -14,7 +14,13 @@ exports.register = asyncHandler(async (req, res) => {
 
     const user = new User({ username, password, is_admin });
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+    const token = jwt.sign({ user_id: user._id, is_admin: user.is_admin }, process.env.JWT_SECRET, { expiresIn: "2h" });
+
+    res.status(201).json({
+        message: "User registered successfully", token, user_id: user._id,
+        is_admin: user.is_admin,
+        username: user.username
+    });
 });
 
 exports.login = asyncHandler(async (req, res) => {
@@ -23,6 +29,10 @@ exports.login = asyncHandler(async (req, res) => {
     if (!user || !(await user.comparePassword(password))) {
         return res.status(401).json({ error: "Invalid credentials" });
     }
-    const token = jwt.sign({ user_id: user._id, is_admin: user.is_admin }, process.env.JWT_SECRET, { expiresIn: "1h" });
-    res.json({ token });
+    const token = jwt.sign({ user_id: user._id, is_admin: user.is_admin }, process.env.JWT_SECRET, { expiresIn: "2h" });
+    res.status(200).json({
+        token, user_id: user._id,
+        is_admin: user.is_admin,
+        username: user.username
+    });
 });

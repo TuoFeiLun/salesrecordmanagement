@@ -7,6 +7,8 @@ const { authLimiter, apiLimiter, createLimiter } = require('./src/middleware/rat
 
 const indexRouter = require("./src/routes/index");
 
+const cors = require("cors");
+
 const app = express();
 
 var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
@@ -21,7 +23,7 @@ main().catch((err) => console.log(err));
 async function main() {
     await mongoose.connect(mongoDB);
 }
-
+app.use(cors());
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
