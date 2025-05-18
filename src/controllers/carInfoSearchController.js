@@ -23,7 +23,7 @@ exports.car_info_search = asyncHandler(async (req, res, next) => {
         if (cartype) params.append("body", cartype);
 
 
-        // Call third-party API
+        // Call third-party API to list car details from websites
         const apiUrl = `https://www.carqueryapi.com/api/0.3/?callback=?&${params.toString()}`;
         console.log("Requesting car information from:", apiUrl);
 
