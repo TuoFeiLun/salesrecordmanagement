@@ -46,15 +46,45 @@ exports.car_create = [
             });
         }
 
-        const car = new Car({
-            brandname: req.body.brandname,
-            cartype: req.body.cartype,
-            price: req.body.price,
-            productionarea: req.body.productionarea,
-        });
+        // 验证价格是否为数字
+        if (isNaN(Number(req.body.price))) {
+            return res.status(400).json({
+                error: "Price must be a valid number"
+            });
+        }
 
-        await car.save();
-        res.status(201).json(car);
+        try {
+            const car = new Car({
+                brandname: req.body.brandname,
+                cartype: req.body.cartype,
+                price: req.body.price,
+                productionarea: req.body.productionarea,
+                image: req.body.image,
+            });
+
+            // Add image if it exists
+            if (req.file) {
+                // 将图片buffer转换为base64字符串
+                const base64Image = req.file.buffer.toString('base64');
+                car.image = {
+                    data: base64Image,
+                    contentType: req.file.mimetype
+                };
+            }
+
+            await car.save();
+            res.status(201).json(car);
+        } catch (error) {
+            if (error.name === 'CastError' && error.path === 'price') {
+                return res.status(400).json({
+                    error: "Price must be a valid number"
+                });
+            }
+            // 捕获其他可能的错误
+            res.status(500).json({
+                error: error.message
+            });
+        }
     }),
 ];
 
@@ -97,38 +127,68 @@ exports.car_update = [
             return res.status(404).json({ error: 'Car not found' });
         }
 
-        //  
-        const car = new Car({
-            brandname: req.body.brandname,
-            cartype: req.body.cartype,
-            price: req.body.price,
-            productionarea: req.body.productionarea,
-        });
-
-        if (!errors.isEmpty()) {
-            // There are errors. Render the form again with sanitized values and error messages.
-            res.status(400).json({
-                car: car,
-                errors: errors.array(),
+        // 验证价格是否为数字
+        if (isNaN(Number(req.body.price))) {
+            return res.status(400).json({
+                error: "Price must be a valid number"
             });
-            return;
-        } else {
-            // Data from form is valid. Update the record.
-            const updatedCar = await Car.findOneAndUpdate(
-                { _id: req.params.id },
-                {
-                    $set: {
-                        brandname: req.body.brandname,
-                        cartype: req.body.cartype,
-                        price: req.body.price,
-                        productionarea: req.body.productionarea,
-                    }
-                },
-                { new: true, runValidators: true } // `new: true` returns the updated document
-            );
+        }
 
-            res.status(200);
-            res.json(updatedCar);
+        try {
+            const car = new Car({
+                brandname: req.body.brandname,
+                cartype: req.body.cartype,
+                price: req.body.price,
+                productionarea: req.body.productionarea,
+                image: req.body.image,
+            });
+
+            if (!errors.isEmpty()) {
+                // There are errors. Render the form again with sanitized values and error messages.
+                res.status(400).json({
+                    car: car,
+                    errors: errors.array(),
+                });
+                return;
+            } else {
+                // Data from form is valid. Update the record.
+                const updateData = {
+                    brandname: req.body.brandname,
+                    cartype: req.body.cartype,
+                    price: req.body.price,
+                    productionarea: req.body.productionarea,
+                    image: req.body.image,
+                };
+
+                // Add image if it exists
+                if (req.file) {
+                    // 将图片buffer转换为base64字符串
+                    const base64Image = req.file.buffer.toString('base64');
+                    updateData.image = {
+                        data: base64Image,
+                        contentType: req.file.mimetype
+                    };
+                }
+
+                const updatedCar = await Car.findOneAndUpdate(
+                    { _id: req.params.id },
+                    { $set: updateData },
+                    { new: true, runValidators: true } // `new: true` returns the updated document
+                );
+
+                res.status(200);
+                res.json(updatedCar);
+            }
+        } catch (error) {
+            if (error.name === 'CastError' && error.path === 'price') {
+                return res.status(400).json({
+                    error: "Price must be a valid number"
+                });
+            }
+            // 捕获其他可能的错误
+            res.status(500).json({
+                error: error.message
+            });
         }
     }),
 ];

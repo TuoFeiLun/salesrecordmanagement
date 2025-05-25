@@ -7,7 +7,10 @@ const CarScheme = new Schema({
     cartype: { type: String, required: true },
     price: { type: Number, required: true },
     productionarea: { type: String, required: true },
-
+    image: {
+        data: String,
+        contentType: String
+    }
 });
 
 // Export model.
