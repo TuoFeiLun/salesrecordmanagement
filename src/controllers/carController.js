@@ -46,7 +46,7 @@ exports.car_create = [
             });
         }
 
-        // 验证价格是否为数字
+        // check if price is a valid number
         if (isNaN(Number(req.body.price))) {
             return res.status(400).json({
                 error: "Price must be a valid number"
@@ -64,7 +64,7 @@ exports.car_create = [
 
             // Add image if it exists
             if (req.file) {
-                // 将图片buffer转换为base64字符串
+                // convert image buffer to base64 string
                 const base64Image = req.file.buffer.toString('base64');
                 car.image = {
                     data: base64Image,
@@ -80,7 +80,7 @@ exports.car_create = [
                     error: "Price must be a valid number"
                 });
             }
-            // 捕获其他可能的错误
+            // catch other possible errors
             res.status(500).json({
                 error: error.message
             });
@@ -90,7 +90,7 @@ exports.car_create = [
 
 
 exports.car_delete = asyncHandler(async (req, res, next) => {
-    // 检查用户是否为管理员
+    // check if user is admin
     if (!req.user.is_admin) {
         return res.status(403).json({ error: "Access denied. Only administrators can delete cars." });
     }
@@ -101,10 +101,7 @@ exports.car_delete = asyncHandler(async (req, res, next) => {
         return res.status(204).json({ error: 'car not found' });
     }
 
-    // // 如果不是管理员，只能删除自己的任务
-    // if (!req.user.is_admin && task.createdBy.toString() !== req.user.user_id) {
-    //     return res.status(403).json({ error: "Access denied" });
-    // }
+
 
     await Car.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Car deleted successfully' });
@@ -127,7 +124,7 @@ exports.car_update = [
             return res.status(404).json({ error: 'Car not found' });
         }
 
-        // 验证价格是否为数字
+        // check if price is a valid number
         if (isNaN(Number(req.body.price))) {
             return res.status(400).json({
                 error: "Price must be a valid number"
@@ -162,7 +159,7 @@ exports.car_update = [
 
                 // Add image if it exists
                 if (req.file) {
-                    // 将图片buffer转换为base64字符串
+                    // convert image buffer to base64 string
                     const base64Image = req.file.buffer.toString('base64');
                     updateData.image = {
                         data: base64Image,
@@ -185,7 +182,7 @@ exports.car_update = [
                     error: "Price must be a valid number"
                 });
             }
-            // 捕获其他可能的错误
+            // catch other possible errors
             res.status(500).json({
                 error: error.message
             });

@@ -45,7 +45,7 @@ app.use((req, res, next) => {
 app.use("/api", indexRouter);
 
 const PORT = 4008;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
